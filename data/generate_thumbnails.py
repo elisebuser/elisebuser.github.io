@@ -11,14 +11,11 @@ import shutil
 
 base_folder = "/Users/ebuser/Documents/EB_Website_Folder"
 
-# Find this in the Cloudinary Console under Settings / Product Environment.
-# The Cloudinary console folder URL is not a public image-delivery URL.
-cloudinary_cloud_name = "aup43rvs"
-
+# Public Cloudflare R2 base URL for the uploaded EB_Website_Folder.
 # Keep the trailing slash because the website appends collection/image paths.
 image_base_url = (
-    f"https://res.cloudinary.com/{cloudinary_cloud_name}/"
-    "image/upload/"
+    "https://pub-81f0405a7471418c8f41a932f79f6163.r2.dev/"
+    "EB_Website_Folder/"
 )
 
 
@@ -681,11 +678,6 @@ def process_collection(
 
 def main():
     """Process every collection and write collections.json."""
-
-    if not cloudinary_cloud_name:
-        raise ValueError(
-            "Set cloudinary_cloud_name near the top of this script before running it."
-        )
 
     if not os.path.isdir(base_folder):
         raise FileNotFoundError(
