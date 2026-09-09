@@ -14,11 +14,11 @@
 
     <link rel="stylesheet" href="collections.css">
 
-    <style>
+        <style>
         #blogContent {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 30px;
             width: 90%;
             max-width: 1600px;
             margin: 0 auto;
@@ -27,12 +27,35 @@
         .blogCard {
             display: block;
             text-decoration: none;
+            color: inherit;
         }
 
         .blogCard img {
             display: block;
             width: 100%;
-            height: auto;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .blogCardText {
+            padding-top: 12px;
+        }
+
+        .blogCardText h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        .blogDate {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+        }
+
+        .blogCardText p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
         }
     </style>
 </head>
