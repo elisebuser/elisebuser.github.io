@@ -1,5 +1,7 @@
 # Pro Tips for Climbing in Bishop
 
+[image1]
+
 ## 1. Dress for the weather
 
 Bishop is the desert after all, which means that it is always warm and always baking in the sun. Therefore, you’d be best to leave your layers at home. Especially all those lightweight down puffy jackets that don’t do anything in the first place.
@@ -101,4 +103,6 @@ These locations have varying degrees of bathrooms, tables, and uninterrupted mou
 
 8. Go to Shatts. Do this at least once every day to avoid consuming stale and therefore subpar pastries. Even if you are camping and climbing at the milks, the chili cheese bacon breadsticks and 6 dollar latte are worth the hour of driving and the fear-of-bottoming-out-my-car-on-buttermilk-road stress. 
 
-9. Pick your camping spot wisely. Some local favorites are: BLM land just past ORG, BLM table lands, the Pit, the fancy Pit (Pleasant Valley Campgrounds), and the Vons/Kmart surrounding territories. These locations have varying degrees of bathrooms, tables, and uninterrupted mountain views, so keep these features in mind when choosing. 
+9. Pick your camping spot wisely. Some local favorites are: BLM land just past ORG, BLM table lands, the Pit, the fancy Pit (Pleasant Valley Campgrounds), and the Vons/Kmart surrounding territories. These locations have varying degrees of bathrooms, tables, and uninterrupted mountain views, so keep these features in mind when choosing.
+
+[image2]
