@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Pro Tips for Climbing in Bishop | Elise Buser Photography</title>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link rel="icon" type="image/png" href="../data/favicon.png">
+
+    <link rel="stylesheet" href="../collections.css">
+
+    <style>
+        #blogPost {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        #blogPostContent {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #blogPostContent > img {
+            display: block;
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            margin: 0 auto 30px auto;
+        }
+
+        #postText {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        #postText h1 {
+            font-size: 28px;
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        #postText h2 {
+            font-size: 22px;
+            font-weight: normal;
+            margin-top: 30px;
+        }
+
+        #postText p {
+            margin: 0 0 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a
+        id="topLeftLogo"
+        href="../index.html"
+        aria-label="Elise Buser Photography home"
+    >
+        <img
+            src="../data/logo.png"
+            alt="Elise Buser Photography"
+        >
+    </a>
+
+    <div id="version">v1.1.9</div>
+
+    <nav aria-label="Main navigation">
+        <a href="../index.html">Home</a>
+        <a href="../collections.html">Collections</a>
+        <a href="../about.html">About</a>
+        <a href="../blog.html">Blog</a>
+    </nav>
+
+    <main id="page">
+
+        <article id="blogPost">
+
+            <header id="pageHeader">
+                <h1>Pro Tips for Climbing in Bishop</h1>
+                <p>September 2026</p>
+            </header>
+
+            <div id="blogPostContent">
+
+                <div id="postText"></div>
+
+            </div>
+
+        </article>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        const imageBase =
+            "https://pub-81f0405a7471418c8f41a932f79f6163.r2.dev/EB_Website_Folder/Blog/bishop-climbing/";
+
+        fetch("../data/bishop-climbing.md")
+            .then(response => response.text())
+            .then(text => {
+
+                text = text.replace(
+                    /\[image(\d+)\]/gi,
+                    function(match, number) {
+                        return `
+                            <img
+                                src="${imageBase}image${number}.jpg"
+                                alt="Bishop climbing photo ${number}"
+                                class="blogPostImage"
+                            >
+                        `;
+                    }
+                );
+
+                document.getElementById("postText").innerHTML =
+                    marked.parse(text);
+
+            })
+            .catch(error => {
+                console.error("Error loading blog post:", error);
+            });
+    </script>
+
+</body>
+</html>
