@@ -6,7 +6,7 @@ fetch("data/blog.json")
         posts.forEach(post => {
             const card = document.createElement("a");
 
-            card.href = `blog/${post.slug}.html`;
+            card.href = `blog/post.html?post=${post.slug}`;
             card.className = "blogCard";
 
             card.innerHTML = `
