@@ -5,5 +5,12 @@
         "date": "September 7, 2026",
         "excerpt": "This is a test blog post. More photography stories coming soon.",
         "image": "https://pub-81f0405a7471418c8f41a932f79f6163.r2.dev/EB_Website_Folder/Blog/test-post/cover.jpg"
+    },
+    {
+        "slug": "bishop-climbing",
+        "title": "Pro Tips for Climbing in Bishop",
+        "date": "December 21, 2023",
+        "excerpt": "A completely serious guide to getting the most out of your next Bishop climbing trip.",
+        "image": "https://pub-81f0405a7471418c8f41a932f79f6163.r2.dev/EB_Website_Folder/Blog/bishop-climbing/cover.jpg"
     }
 ]
