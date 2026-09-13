@@ -135,21 +135,41 @@
                     .then(response => response.text())
                     .then(text => {
 
-                        text = text.replace(
-                            /\[image(\d+)\]/gi,
-                            function(match, number) {
-                                return `
-                                    <img
-                                        src="${imageBase}image${number}.jpg"
-                                        alt="${post.title} photo ${number}"
-                                        class="blogPostImage"
-                                    >
-                                `;
-                            }
-                        );
+                        const html = marked.parse(text);
 
-                        document.getElementById("postText").innerHTML =
-                            marked.parse(text);
+                        const postText =
+                            document.getElementById("postText");
+
+                        postText.innerHTML = html;
+
+                        const images = postText.querySelectorAll("p");
+
+                        images.forEach(paragraph => {
+
+                            const match =
+                                paragraph.textContent.trim().match(
+                                    /^\[image(\d+)\]$/i
+                                );
+
+                            if (match) {
+
+                                const number = match[1];
+
+                                const image =
+                                    document.createElement("img");
+
+                                image.src =
+                                    `${imageBase}image${number}.jpg`;
+
+                                image.alt =
+                                    `${post.title} photo ${number}`;
+
+                                image.className =
+                                    "blogPostImage";
+
+                                paragraph.replaceWith(image);
+                            }
+                        });
 
                     });
 
