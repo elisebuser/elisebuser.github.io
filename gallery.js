@@ -153,7 +153,7 @@ const zoomControlsHideDelay = 650;
 const loadingIndicatorDelay = 2000;
 const initialUiProtectionDuration = 25000;
 const autoplayDelayStorageKey =
-    "jmPhotographyAutoplayDelay";
+    "eliseBuserPhotographyAutoplayDelay";
 
 function loadStoredAutoplayDelay() {
     try {
