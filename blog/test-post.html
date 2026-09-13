@@ -38,7 +38,22 @@
         #postText {
             font-size: 16px;
             line-height: 1.6;
-            white-space: pre-line;
+        }
+
+        #postText h1 {
+            font-size: 28px;
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        #postText h2 {
+            font-size: 22px;
+            font-weight: normal;
+            margin-top: 30px;
+        }
+
+        #postText p {
+            margin: 0 0 20px 0;
         }
     </style>
 </head>
@@ -89,11 +104,13 @@
 
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script>
-        fetch("../data/test-post.txt")
+        fetch("../data/test-post.md")
             .then(response => response.text())
             .then(text => {
-                document.getElementById("postText").innerText = text;
+                document.getElementById("postText").innerHTML = marked.parse(text);
             })
             .catch(error => {
                 console.error("Error loading blog post:", error);
