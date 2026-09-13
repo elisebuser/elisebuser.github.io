@@ -54,19 +54,24 @@
                     alt="My First Blog Post"
                 >
 
-                <p>
-                    This is my first blog post.
-                </p>
-
-                <p>
-                    More photography stories coming soon.
-                </p>
+                <div id="postText"></div>
 
             </div>
 
         </article>
 
     </main>
+
+    <script>
+        fetch("../data/test-post.txt")
+            .then(response => response.text())
+            .then(text => {
+                document.getElementById("postText").innerText = text;
+            })
+            .catch(error => {
+                console.error("Error loading blog post:", error);
+            });
+    </script>
 
 </body>
 </html>
