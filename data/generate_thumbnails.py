@@ -3,6 +3,7 @@ import json
 import os
 import re
 import shutil
+import sys
 
 
 # ==========================
@@ -90,6 +91,153 @@ def clear_generated_folder(folder):
             shutil.rmtree(path)
 
 
+def read_photo_credits(collection_path):
+    """Read photo credits from photo_credits.txt.
+
+    Each non-empty credit line should have the form:
+        filename.jpg | Credit Name
+    """
+    credits_path = os.path.join(
+        collection_path,
+        "photo_credits.txt"
+    )
+
+    if not os.path.exists(
+        credits_path
+    ):
+        return {}
+
+    credits = {}
+
+    with open(
+        credits_path,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        for line_number, line in enumerate(
+            file,
+            start=1
+        ):
+            line = line.strip()
+
+            if not line:
+                continue
+
+            if "|" not in line:
+                print(
+                    "  WARNING: Ignoring malformed credit line "
+                    f"{line_number} in photo_credits.txt"
+                )
+                continue
+
+            filename, credit = line.split(
+                "|",
+                1
+            )
+
+            filename = filename.strip()
+            credit = credit.strip()
+
+            if not filename or not credit:
+                print(
+                    "  WARNING: Ignoring incomplete credit line "
+                    f"{line_number} in photo_credits.txt"
+                )
+                continue
+
+            credits[filename] = credit
+
+    return credits
+
+
+def update_photo_credits(
+    collection_path,
+    original_image_files,
+    current_image_files,
+    credits
+):
+    """Update photo_credits.txt so credits follow renamed images.
+
+    The mapping is based on each original filename's position in the
+    complete, naturally sorted image list before and after normalization.
+    This also handles adding a new image that causes existing numbered
+    images to shift.
+    """
+    if not credits:
+        return {}
+
+    credits_path = os.path.join(
+        collection_path,
+        "photo_credits.txt"
+    )
+
+    # The script assigns the new sequential filename based on the image's
+    # position in the current sorted list. Build that mapping before any
+    # renaming has taken place.
+    filename_mapping = {}
+
+    current_by_old_name = {
+        filename: filename
+        for filename in current_image_files
+    }
+
+    for old_filename in original_image_files:
+        if old_filename not in current_by_old_name:
+            continue
+
+        index = current_image_files.index(
+            old_filename
+        )
+
+        extension = os.path.splitext(
+            old_filename
+        )[1].lower()
+
+        new_filename = (
+            f"{(index + 1) * 100}" +
+            extension
+        )
+
+        filename_mapping[old_filename] = new_filename
+
+    updated_credits = {}
+    unresolved_credits = []
+
+    for filename, credit in credits.items():
+        if filename in filename_mapping:
+            updated_filename = filename_mapping[filename]
+            updated_credits[updated_filename] = credit
+        elif filename in current_image_files:
+            updated_credits[filename] = credit
+        else:
+            unresolved_credits.append(
+                (filename, credit)
+            )
+
+    if unresolved_credits:
+        for filename, _credit in unresolved_credits:
+            print(
+                "  WARNING: Could not match credit to an image: "
+                f"{filename}"
+            )
+
+    with open(
+        credits_path,
+        "w",
+        encoding="utf-8"
+    ) as file:
+        for filename, credit in updated_credits.items():
+            file.write(
+                f"{filename} | {credit}\n"
+            )
+
+    print(
+        "  Updated photo_credits.txt"
+    )
+
+    return updated_credits
+
+
 def original_names_need_normalizing(image_files):
     """Check whether originals need sequential 100, 200, 300... names."""
 
@@ -101,23 +249,53 @@ def original_names_need_normalizing(image_files):
     )
 
 
-def normalize_original_names(originals_folder, image_files):
+def normalize_original_names(
+    originals_folder,
+    image_files
+):
     """
     Rename originals without recompressing or changing their image data.
 
     Temporary names prevent collisions when files exchange positions.
-    """
 
+    Returns:
+        (renamed, filename_mapping)
+    """
     if not original_names_need_normalizing(
         image_files
     ):
-        print("  Original filenames already normalized")
+        print(
+            "  Original filenames already normalized"
+        )
 
-        return False
+        identity_mapping = {
+            filename: filename
+            for filename in image_files
+        }
+
+        return False, identity_mapping
+
+    # The final names are determined by the complete sorted list.
+    filename_mapping = {}
+
+    for index, filename in enumerate(
+        image_files,
+        start=1
+    ):
+        extension = os.path.splitext(
+            filename
+        )[1].lower()
+
+        filename_mapping[filename] = (
+            f"{index * 100}" +
+            extension
+        )
 
     temporary_files = []
 
-    for index, filename in enumerate(image_files):
+    for index, filename in enumerate(
+        image_files
+    ):
         old_path = os.path.join(
             originals_folder,
             filename
@@ -178,7 +356,7 @@ def normalize_original_names(originals_folder, image_files):
         f"  Renamed {len(temporary_files)} images"
     )
 
-    return True
+    return True, filename_mapping
 
 
 def cleaned_exif_bytes(image):
@@ -466,20 +644,88 @@ def process_collection(
 
         return None
 
-    original_images = list_images(
+    original_images_before_rename = list_images(
         originals_folder
     )
 
-    originals_names_changed = (
+    photo_credits = read_photo_credits(
+        collection_path
+    )
+
+    originals_names_changed, _filename_mapping = (
         normalize_original_names(
             originals_folder,
-            original_images
+            original_images_before_rename
         )
     )
 
     original_images = list_images(
         originals_folder
     )
+
+    if photo_credits:
+        # Build the final-name mapping from the position of each old
+        # filename in the complete current sorted image list. This is what
+        # allows credits to follow an existing image when a newly added
+        # image causes the numbered filenames to shift.
+        current_position_mapping = {}
+
+        for old_filename in original_images_before_rename:
+            if old_filename not in original_images:
+                continue
+
+            index = original_images.index(
+                old_filename
+            )
+
+            extension = os.path.splitext(
+                old_filename
+            )[1].lower()
+
+            current_position_mapping[
+                old_filename
+            ] = (
+                f"{(index + 1) * 100}" +
+                extension
+            )
+
+        updated_photo_credits = {}
+
+        for old_filename, credit in photo_credits.items():
+            if old_filename in current_position_mapping:
+                updated_photo_credits[
+                    current_position_mapping[old_filename]
+                ] = credit
+            elif old_filename in original_images:
+                updated_photo_credits[
+                    old_filename
+                ] = credit
+            else:
+                print(
+                    "  WARNING: Could not match credit to an image: "
+                    f"{old_filename}"
+                )
+
+        credits_path = os.path.join(
+            collection_path,
+            "photo_credits.txt"
+        )
+
+        with open(
+            credits_path,
+            "w",
+            encoding="utf-8"
+        ) as file:
+            for filename, credit in updated_photo_credits.items():
+                file.write(
+                    f"{filename} | {credit}\n"
+                )
+
+        photo_credits = updated_photo_credits
+
+        print(
+            "  Updated photo_credits.txt"
+        )
 
     thumbnails_folder = os.path.join(
         collection_path,
@@ -669,31 +915,47 @@ def process_collection(
 
         return None
 
-    return {
+    collection_entry = {
         "name": collection,
         "images": image_count,
         "aspect_ratios": aspect_ratios
     }
 
+    if photo_credits:
+        collection_entry["credits"] = photo_credits
+
+    return collection_entry
+
 
 def main():
     """Process every collection and write collections.json."""
 
-    if not os.path.isdir(base_folder):
+    processing_base_folder = (
+        os.path.abspath(
+            os.path.expanduser(
+                sys.argv[1]
+            )
+        )
+        if len(sys.argv) > 1
+        else base_folder
+    )
+
+    if not os.path.isdir(processing_base_folder):
         raise FileNotFoundError(
-            f"Local image folder not found: {base_folder}"
+            "Local image folder not found: "
+            f"{processing_base_folder}"
         )
 
     collections = []
 
     for collection in sorted(
         os.listdir(
-            base_folder
+            processing_base_folder
         ),
         key=natural_sort_key
     ):
         collection_path = os.path.join(
-            base_folder,
+            processing_base_folder,
             collection
         )
 
@@ -713,7 +975,7 @@ def main():
             )
 
     json_path = os.path.join(
-        base_folder,
+        processing_base_folder,
         "collections.json"
     )
 
