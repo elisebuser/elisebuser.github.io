@@ -73,10 +73,9 @@ const helpPanel =
 
 const photoCredit = document.createElement("div");
 photoCredit.id = "photoCredit";
-photoCredit.style.position = "absolute";
-photoCredit.style.bottom = "20px";
-photoCredit.style.left = "50%";
-photoCredit.style.transform = "translateX(-50%)";
+photoCredit.style.position = "fixed";
+photoCredit.style.top = "20px";
+photoCredit.style.right = "20px";
 photoCredit.style.color = "white";
 photoCredit.style.fontSize = "14px";
 photoCredit.style.textShadow = "0 1px 4px black";
