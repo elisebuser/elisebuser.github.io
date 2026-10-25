@@ -71,8 +71,23 @@ const controlArea =
 const helpPanel =
     document.getElementById("helpPanel");
 
+const photoCredit = document.createElement("div");
+photoCredit.id = "photoCredit";
+photoCredit.style.position = "absolute";
+photoCredit.style.bottom = "20px";
+photoCredit.style.left = "50%";
+photoCredit.style.transform = "translateX(-50%)";
+photoCredit.style.color = "white";
+photoCredit.style.fontSize = "14px";
+photoCredit.style.textShadow = "0 1px 4px black";
+photoCredit.style.zIndex = "1000";
+photoCredit.style.pointerEvents = "none";
+photoCredit.hidden = true;
+document.body.appendChild(photoCredit);
+
 let images = [];
 let thumbnails = [];
+let photoCredits = {};
 let current = 0;
 let displayedIndex = -1;
 
@@ -215,12 +230,15 @@ fetch("data/collections.json")
             item => item.name === collection
         );
 
+
         if (!selected) {
             document.getElementById("counter").textContent =
                 "Collection not found";
 
             return;
         }
+
+        photoCredits = selected.credits || {};
 
         const normalizedBase =
             base.endsWith("/") ? base : `${base}/`;
@@ -1157,10 +1175,43 @@ function centerThumbnailByIndex(
     );
 }
 
+function updatePhotoCredit() {
+    const imageIndex =
+        displayedIndex >= 0
+            ? displayedIndex
+            : current;
+
+    if (
+        imageIndex < 0 ||
+        filmstripExpanded ||
+        document.body.classList.contains("ui-hidden")
+    ) {
+        photoCredit.hidden = true;
+        photoCredit.textContent = "";
+        return;
+    }
+
+    const filename = `${(imageIndex + 1) * 100}.jpg`;
+    const credit = photoCredits[filename];
+
+    if (!credit) {
+        photoCredit.hidden = true;
+        photoCredit.textContent = "";
+        return;
+    }
+
+    photoCredit.textContent = `Photo by ${credit}`;
+    photoCredit.hidden = false;
+}
+
 function updateThumbnails(
     activeIndex = current,
     centerBehavior = null
 ) {
+
+    updatePhotoCredit();
+
+
     const thumbnailElements =
         document.querySelectorAll(".thumb");
 
@@ -5293,6 +5344,8 @@ function setFilmstripExpanded(
 
     filmstripExpanded = expanded;
 
+    updatePhotoCredit();
+
     if (!filmstripExpanded) {
         resetMosaicRepulsion(true);
     }
@@ -5650,6 +5703,8 @@ function showUI() {
         "ui-hidden"
     );
 
+    updatePhotoCredit();
+
     wakeInterface();
 
     controls.classList.toggle(
@@ -5692,6 +5747,8 @@ async function enterHideMode(
     document.body.classList.add(
         "ui-hidden"
     );
+
+    updatePhotoCredit();
 
     showModeToast(toastMessage);
 }
